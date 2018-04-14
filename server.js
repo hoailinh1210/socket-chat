@@ -10,6 +10,9 @@ io.on('connection',function(socket){
     socket.on('chat message',msg => {
         console.log(msg);
     })
+    socket.on('disconnect',function(){
+        console.log('user disconnected');
+    })
 })
 
 http.listen(8032,'localhost',function(){
