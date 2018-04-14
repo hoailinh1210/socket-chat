@@ -9,6 +9,7 @@ io.on('connection',function(socket){
     console.log('a user connected');
     socket.on('chat message',msg => {
         console.log(msg);
+        io.emit('chat message','hi');
     })
     socket.on('disconnect',function(){
         console.log('user disconnected');
