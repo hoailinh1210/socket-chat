@@ -5,17 +5,36 @@
     <title>Socket.IO chat</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script>
-        var socket = io();
+        $(window).on('load', function () {
+            $('#myModal').modal('show');
+        });
         $(function () {
             var socket = io();
+            $('#save').click(function () {
+                socket.emit('user name', $('#name').val());
+            })
             $('form').submit(function () {
                 socket.emit('chat message', $('#m').val());
                 $('#m').val('');
                 return false;
             });
-            socket.on('chat message',function(msg){
-                $('#messages').append($('<li>').text(msg));
+            socket.on('chat message', function (data) {
+                $('#messages').append($('<li>').text(data.name + ': ' + data.msg));
+            })
+            socket.on('online', function (data) {
+                //         $('#online').text('');
+                $('#online').text('');
+                if (data.users !== undefined) {
+                    console.log(typeof data.users);
+                    for (key in (data.users))
+                        if (data.users.hasOwnProperty(key))
+                        $('#online').append($(`<li id=${key}>`).text(data.users[key]));
+                } 
+                $('#cA').text(data.count);
             })
         });
     </script>
@@ -31,25 +50,17 @@
         }
 
         form {
-            background: #000;
             padding: 3px;
             position: fixed;
             bottom: 0;
-            width: 100%;
+            width: 40%;
         }
 
         form input {
             border: 0;
             padding: 10px;
-            width: 90%;
             margin-right: .5%;
-        }
 
-        form button {
-            width: 9%;
-            background: rgb(130, 224, 255);
-            border: none;
-            padding: 10px;
         }
 
         #messages {
@@ -69,11 +80,57 @@
 </head>
 
 <body>
-    <ul id="messages"></ul>
-    <form action="">
-        <input id="m" autocomplete="off" />
-        <button>Send</button>
-    </form>
+    <div class="container">
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">Modal Header</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label>Name: </label>
+                        <input id="name" class="form-control" autocomplete="off" />
+                    </div>
+                    <div class="modal-footer">
+                        <button id="save" type="button" class="btn btn-primary" data-dismiss="modal">Save</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div id="users" class="col-sm-4 jumbotron">
+                <div>
+                    <span>
+                        <h4>Number of people online:
+                            <span id="cA">
+
+                            </span>
+                        </h4>
+                    </span>
+
+                </div>
+                <ul id="online">
+
+                </ul>
+            </div>
+            <div id="chat" class="col-sm-8">
+                <ul id="messages"></ul>
+                <form action="">
+                    <input id="m" class="form-control" autocomplete="off" />
+                    <button class="btn btn-primary">Send</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
